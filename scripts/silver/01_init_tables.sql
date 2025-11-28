@@ -10,13 +10,13 @@ Warning: this script will drop any existing silver tables!
 
 DROP TABLE IF EXISTS silver.crm_cust_info;
 CREATE TABLE silver.crm_cust_info (
-    cst_id VARCHAR(50),
+    cst_id INT,
     cst_key VARCHAR(50),
     cst_firstname VARCHAR(50),
     cst_lastname VARCHAR(50),
     cst_marital_status VARCHAR(50),
     cst_gndr VARCHAR(50),
-    cst_create_date VARCHAR(50)
+    cst_create_date DATE
 );
 
 DROP TABLE IF EXISTS silver.crm_prd_info;
