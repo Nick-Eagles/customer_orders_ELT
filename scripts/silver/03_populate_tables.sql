@@ -1,3 +1,8 @@
+-- #############################################################################
+-- #   CRM tables
+-- #############################################################################
+
+-- silver.crm_cust_info
 TRUNCATE TABLE silver.crm_cust_info;
 INSERT INTO silver.crm_cust_info (
     cst_id,
@@ -13,6 +18,8 @@ SELECT
     cst_key,
     TRIM(cst_firstname) AS cst_firstname,
     TRIM(cst_lastname)  AS cst_lastname,
+    -- Use full names instead of abbreviations but preseve null or unexpected
+    -- values
     CASE
         WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married'
         WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single'
@@ -26,6 +33,7 @@ SELECT
         ELSE cst_gndr
     END AS cst_gndr,
     TO_DATE(cst_create_date, 'YYYY-MM-DD') AS cst_create_date
+-- Take the latest entry for customers with multiple records
 FROM (
     SELECT
         *,
@@ -36,3 +44,60 @@ FROM (
     FROM bronze.crm_cust_info
 ) AS sub
 WHERE rn = 1;
+
+-- silver.crm_prd_info
+TRUNCATE TABLE silver.crm_prd_info;
+INSERT INTO silver.crm_prd_info (
+    prd_id,
+    prd_key,
+    prd_nm,
+    prd_cost,
+    prd_line,
+    prd_start_dt,
+    prd_end_dt
+)
+SELECT
+    sub.prd_id as prd_id,
+    sub.prd_key as prd_key,
+    sub.prd_nm as prd_nm,
+    sub.prd_cost as prd_cost,
+    sub.prd_line as prd_line,
+    CASE
+        -- Swap start and end for invalid end dates
+        WHEN sub.group_size = 1 AND sub.prd_end < sub.prd_start THEN sub.prd_end
+        ELSE sub.prd_start
+    END AS prd_start_dt,
+    CASE
+        -- Swap start and end for invalid end dates
+        WHEN sub.group_size = 1 AND sub.prd_end < sub.prd_start THEN sub.prd_start
+        -- Whenever a product has multiple records, the end date for a given
+        -- record must be just before the next start date
+        WHEN sub.next_start IS NOT NULL THEN CAST(sub.next_start - INTERVAL '1 day' AS DATE)
+        ELSE sub.prd_end
+    END AS prd_end_dt
+FROM (
+    SELECT
+        -- Generally cast and clean up columns
+        CAST(prd_id AS INT) AS prd_id,
+        TRIM(prd_key) AS prd_key,
+        TRIM(prd_nm) AS prd_nm,
+        CAST(prd_cost AS INT) AS prd_cost,
+        -- Use full names instead of abbreviations but preseve null or unexpected
+        -- values
+        CASE
+            WHEN TRIM(prd_line) = 'M' THEN 'Mountain'
+            WHEN TRIM(prd_line) = 'R' THEN 'Road'
+            WHEN TRIM(prd_line) = 'S' THEN 'Other sales'
+            WHEN TRIM(prd_line) = 'T' THEN 'Touring'
+            WHEN TRIM(prd_line) IS NULL THEN NULL
+            ELSE TRIM(prd_line)
+        END AS prd_line,
+        TO_DATE(prd_start_dt, 'YYYY-MM-DD') AS prd_start,
+        TO_DATE(prd_end_dt, 'YYYY-MM-DD')   AS prd_end,
+        -- Check the next start date if one exists
+        LEAD(TO_DATE(prd_start_dt, 'YYYY-MM-DD'))
+            OVER (PARTITION BY prd_key ORDER BY TO_DATE(prd_start_dt, 'YYYY-MM-DD')) AS next_start,
+        -- Number of records per product
+        COUNT(*) OVER (PARTITION BY prd_key) AS group_size
+    FROM bronze.crm_prd_info
+) sub;

@@ -21,13 +21,13 @@ CREATE TABLE silver.crm_cust_info (
 
 DROP TABLE IF EXISTS silver.crm_prd_info;
 CREATE TABLE silver.crm_prd_info (
-    prd_id VARCHAR(50),
+    prd_id INT,
     prd_key VARCHAR(50),
     prd_nm VARCHAR(50),
-    prd_cost VARCHAR(50),
+    prd_cost INT,
     prd_line VARCHAR(50),
-    prd_start_dt VARCHAR(50),
-    prd_end_dt VARCHAR(50)
+    prd_start_dt DATE,
+    prd_end_dt DATE
 );
 
 DROP TABLE IF EXISTS silver.crm_sales_details;
