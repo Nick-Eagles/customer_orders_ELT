@@ -1,6 +1,7 @@
 TRUNCATE TABLE silver.crm_cust_info;
 INSERT INTO silver.crm_cust_info (
     cst_id,
+    cst_key,
     cst_firstname,
     cst_lastname,
     cst_marital_status,
@@ -8,18 +9,21 @@ INSERT INTO silver.crm_cust_info (
     cst_create_date
 )
 SELECT
-    cst_id,
+    CAST(cst_id AS INT) AS cst_id,
+    cst_key,
     TRIM(cst_firstname) AS cst_firstname,
     TRIM(cst_lastname)  AS cst_lastname,
     CASE
-        WHEN cst_marital_status = 'M' THEN 'Married'
-        WHEN cst_marital_status = 'S' THEN 'Single'
-        ELSE 'NA'
+        WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married'
+        WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single'
+        WHEN cst_marital_status IS NULL THEN NULL
+        ELSE cst_marital_status
     END AS cst_marital_status,
     CASE
-        WHEN cst_gndr = 'M' THEN 'Male'
-        WHEN cst_gndr = 'F' THEN 'Female'
-        ELSE 'NA'
+        WHEN UPPER(TRIM(cst_gndr)) = 'M' THEN 'Male'
+        WHEN UPPER(TRIM(cst_gndr)) = 'F' THEN 'Female'
+        WHEN cst_gndr IS NULL THEN NULL
+        ELSE cst_gndr
     END AS cst_gndr,
     TO_DATE(cst_create_date, 'YYYY-MM-DD') AS cst_create_date
 FROM (
