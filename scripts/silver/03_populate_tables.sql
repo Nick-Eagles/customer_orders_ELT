@@ -2,7 +2,10 @@
 -- #   CRM tables
 -- #############################################################################
 
--- silver.crm_cust_info
+-- #----------------------------------------------------------------------------
+-- #   silver.crm_cust_info
+-- #----------------------------------------------------------------------------
+
 TRUNCATE TABLE silver.crm_cust_info;
 INSERT INTO silver.crm_cust_info (
     cst_id,
@@ -45,7 +48,10 @@ FROM (
 ) AS sub
 WHERE rn = 1;
 
--- silver.crm_prd_info
+-- #----------------------------------------------------------------------------
+-- #   silver.crm_prd_info
+-- #----------------------------------------------------------------------------
+
 TRUNCATE TABLE silver.crm_prd_info;
 INSERT INTO silver.crm_prd_info (
     prd_id,
@@ -63,16 +69,20 @@ SELECT
     sub.prd_cost as prd_cost,
     sub.prd_line as prd_line,
     CASE
-        -- Swap start and end for invalid end dates
+        -- Swap start and end for invalid end dates if there aren't multiple
+        -- records for this product
         WHEN sub.group_size = 1 AND sub.prd_end < sub.prd_start THEN sub.prd_end
         ELSE sub.prd_start
     END AS prd_start_dt,
     CASE
-        -- Swap start and end for invalid end dates
-        WHEN sub.group_size = 1 AND sub.prd_end < sub.prd_start THEN sub.prd_start
         -- Whenever a product has multiple records, the end date for a given
         -- record must be just before the next start date
         WHEN sub.next_start IS NOT NULL THEN CAST(sub.next_start - INTERVAL '1 day' AS DATE)
+        -- Swap start and end for invalid end dates (except when the last of
+        -- multiple records has a bad end date, in which case we drop the end
+        -- date)
+        WHEN sub.group_size = 1 AND sub.prd_end < sub.prd_start THEN sub.prd_start
+        WHEN sub.prd_end < sub.prd_start THEN NULL
         ELSE sub.prd_end
     END AS prd_end_dt
 FROM (
