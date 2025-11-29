@@ -67,6 +67,13 @@ FROM bronze.crm_prd_info
 WHERE (prd_cost IS NOT NULL AND CAST(prd_cost AS INT) IS NULL)
     OR CAST(prd_cost AS INT) < 0;
 
+-- Lining up products across tables, I noticed one table essentially includes a
+-- substring of the other
+SELECT DISTINCT sls_prd_key FROM bronze.crm_sales_details
+WHERE sls_prd_key NOT IN (
+    SELECT substring(prd_key FROM 7) FROM bronze.crm_prd_info
+);
+
 -- #----------------------------------------------------------------------------
 -- #   bronze.crm_sales_details
 -- #----------------------------------------------------------------------------

@@ -89,7 +89,7 @@ FROM (
     SELECT
         -- Generally cast and clean up columns
         CAST(prd_id AS INT) AS prd_id,
-        TRIM(prd_key) AS prd_key,
+        SUBSTRING(TRIM(prd_key) FROM 7) AS prd_key,
         TRIM(prd_nm) AS prd_nm,
         CAST(prd_cost AS INT) AS prd_cost,
         -- Use full names instead of abbreviations but preseve null or unexpected
