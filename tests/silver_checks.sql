@@ -92,14 +92,14 @@ WHERE sls_cust_id NOT IN (
 -- I allow for other gender values, I don't expect to see them in the data
 --
 -- Expectation: 0 rows returned
-SELECT DISTINCT GEN FROM silver.erp_cust_az12
-WHERE GEN NOT IN ('Male', 'Female');
+SELECT DISTINCT gen FROM silver.erp_cust_az12
+WHERE gen NOT IN ('Male', 'Female');
 
--- Expect all customer IDs to exist in the CRM customer info table
+-- Expect all cleaned customer IDs to exist in the CRM customer info table
 --
 -- Expectation: 0 rows returned
-SELECT cid FROM silver.erp_cust_az12
-WHERE cid NOT IN (
+SELECT cid_clean FROM silver.erp_cust_az12
+WHERE cid_clean NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
 
@@ -110,8 +110,8 @@ WHERE cid NOT IN (
 -- Expect all customer IDs to exist in the CRM customer info table
 --
 -- Expectation: 0 rows returned
-SELECT cid FROM silver.erp_loc_a101
-WHERE cid NOT IN (
+SELECT cid_clean FROM silver.erp_loc_a101
+WHERE cid_clean NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
 

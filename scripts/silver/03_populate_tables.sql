@@ -69,6 +69,7 @@ TRUNCATE TABLE silver.crm_prd_info;
 INSERT INTO silver.crm_prd_info (
     prd_id,
     prd_key,
+    prd_clean_key,
     prd_cat,
     prd_nm,
     prd_cost,
@@ -79,6 +80,7 @@ INSERT INTO silver.crm_prd_info (
 SELECT
     sub.prd_id as prd_id,
     sub.prd_key as prd_key,
+    sub.prd_clean_key AS prd_clean_key,
     sub.prd_cat AS prd_cat,
     sub.prd_nm as prd_nm,
     sub.prd_cost as prd_cost,
@@ -102,9 +104,11 @@ SELECT
     END AS prd_end_dt
 FROM (
     SELECT
-        -- Generally cast and clean up columns
+        -- Generally cast and clean up columns. Preserve original prd_key but
+        -- derive a cleaner version that joins with other tables
         CAST(prd_id AS INT) AS prd_id,
-        SUBSTRING(TRIM(prd_key) FROM 7) AS prd_key,
+        prd_key,
+        SUBSTRING(TRIM(prd_key) FROM 7) AS prd_clean_key,
         regexp_replace(SUBSTRING(TRIM(prd_key), 1, 5), '-', '_') AS prd_cat,
         TRIM(prd_nm) AS prd_nm,
         CAST(prd_cost AS INT) AS prd_cost,
@@ -202,13 +206,15 @@ FROM cleaned;
 TRUNCATE TABLE silver.erp_cust_az12;
 INSERT INTO silver.erp_cust_az12 (
     cid,
+    cid_clean,
     bdate,
     gen
 )
 SELECT
+    cid,
     -- To match other tables, we care only about the integer part of the
     -- customer ID
-    CAST(regexp_replace(cid, '^(NAS)*AW0*', '') AS INT) AS cid,
+    CAST(regexp_replace(cid, '^(NAS)*AW0*', '') AS INT) AS cid_clean,
     TO_DATE(bdate, 'YYYY-MM-DD') AS bdate,
     CASE
         -- Clean up variations of male and female
@@ -227,12 +233,14 @@ FROM bronze.erp_cust_az12;
 TRUNCATE TABLE silver.erp_loc_a101;
 INSERT INTO silver.erp_loc_a101 (
     cid,
+    cid_clean,
     cntry
 )
 SELECT
+    cid,
     -- To match other tables, we care only about the integer part of the
     -- customer ID
-    CAST(regexp_replace(cid, '^AW-0*', '') AS INT) AS cid,
+    CAST(regexp_replace(cid, '^AW-0*', '') AS INT) AS cid_clean,
     CASE
         -- Clean up variations of country names
         WHEN UPPER(TRIM(cntry)) IN ('USA', 'UNITED STATES', 'US') THEN 'United States'

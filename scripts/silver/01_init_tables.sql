@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS silver.crm_prd_info;
 CREATE TABLE silver.crm_prd_info (
     prd_id INT,
     prd_key TEXT,
+    prd_clean_key TEXT,
     prd_cat CHAR(5),
     prd_nm TEXT,
     prd_cost INT,
@@ -51,15 +52,17 @@ CREATE TABLE silver.crm_sales_details (
 
 DROP TABLE IF EXISTS silver.erp_cust_az12;
 CREATE TABLE silver.erp_cust_az12 (
-    CID INT,
-    BDATE DATE,
-    GEN TEXT
+    cid TEXT,
+    cid_clean INT,
+    bdate DATE,
+    gen TEXT
 );
 
 DROP TABLE IF EXISTS silver.erp_loc_a101;
 CREATE TABLE silver.erp_loc_a101 (
-    CID INT,
-    CNTRY TEXT
+    cid TEXT,
+    cid_clean INT,
+    cntry TEXT
 );
 
 DROP TABLE IF EXISTS silver.erp_px_cat_g1v2;
