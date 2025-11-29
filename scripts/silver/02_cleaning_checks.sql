@@ -66,3 +66,38 @@ SELECT prd_cost
 FROM bronze.crm_prd_info
 WHERE (prd_cost IS NOT NULL AND CAST(prd_cost AS INT) IS NULL)
     OR CAST(prd_cost AS INT) < 0;
+
+-- #----------------------------------------------------------------------------
+-- #   bronze.crm_sales_details
+-- #----------------------------------------------------------------------------
+
+-- There are several cases of negative columns (that can't be negative).
+-- Moreover, I see that sales is not always equal to quantity * price
+SELECT sls_sales, sls_quantity, sls_price
+FROM bronze.crm_sales_details
+WHERE sls_sales < 0 OR sls_quantity < 0 OR sls_price < 0;
+
+-- Follow up on the last observation. It looks like in general it's not possible
+-- to correct for bad values, but NULL values in one column can be recovered
+SELECT sls_sales, sls_quantity, sls_price
+FROM bronze.crm_sales_details
+WHERE ABS(sls_sales) != ABS(sls_quantity) * ABS(sls_price) OR
+sls_sales is NULL OR sls_quantity IS NULL OR sls_price IS NULL;
+
+-- Some dates are simply invalid
+SELECT sls_order_dt, sls_ship_dt, sls_due_dt
+FROM bronze.crm_sales_details
+WHERE CHAR_LENGTH(sls_order_dt) != 8 OR
+    CHAR_LENGTH(sls_ship_dt) != 8 OR
+    CHAR_LENGTH(sls_due_dt) != 8;
+
+-- There are no nonsensical ordering of date columns
+SELECT sls_order_dt, sls_ship_dt, sls_due_dt
+FROM (
+    SELECT * FROM bronze.crm_sales_details
+    WHERE CHAR_LENGTH(sls_order_dt) = 8 AND
+        CHAR_LENGTH(sls_ship_dt) = 8 AND
+        CHAR_LENGTH(sls_due_dt) = 8
+)
+WHERE TO_DATE(sls_order_dt, 'YYYYMMDD') > TO_DATE(sls_ship_dt, 'YYYYMMDD')
+    OR TO_DATE(sls_ship_dt, 'YYYYMMDD') > TO_DATE(sls_due_dt, 'YYYYMMDD');

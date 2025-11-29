@@ -46,3 +46,29 @@ WHERE prd_line NOT IN ('Mountain', 'Road', 'Other sales', 'Touring');
 -- Expectation: 0 rows returned
 SELECT * FROM silver.crm_prd_info
 WHERE prd_cost < 0;
+
+-- #----------------------------------------------------------------------------
+-- #   silver.crm_sales_details
+-- #----------------------------------------------------------------------------
+
+-- Quantities, prices, and sales amounts should be non-negative
+--
+-- Expectation: 0 rows returned
+SELECT * FROM silver.crm_sales_details
+WHERE sls_quantity < 0 OR sls_price < 0 OR sls_sales < 0;
+
+-- All products should exist in the product info table
+--
+-- Expectation: 0 rows returned
+SELECT DISTINCT sls_prd_key FROM silver.crm_sales_details
+WHERE sls_prd_key NOT IN (
+    SELECT prd_key FROM silver.crm_prd_info
+);
+
+-- All customers should exist in the customer info table
+--
+-- Expectation: 0 rows returned
+SELECT DISTINCT sls_cust_id FROM silver.crm_sales_details
+WHERE sls_cust_id NOT IN (
+    SELECT cst_id FROM silver.crm_cust_info
+);
