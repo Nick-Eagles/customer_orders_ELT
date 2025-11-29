@@ -95,3 +95,22 @@ SELECT cid FROM silver.erp_cust_az12
 WHERE cid NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
+
+-- #----------------------------------------------------------------------------
+-- #   silver.erp_loc_a101
+-- #----------------------------------------------------------------------------
+
+-- Expect all customer IDs to exist in the CRM customer info table
+--
+-- Expectation: 0 rows returned
+SELECT cid FROM silver.erp_loc_a101
+WHERE cid NOT IN (
+    SELECT cst_id FROM silver.crm_cust_info
+);
+
+-- Can't be sure of what countries might show up in the table in the future,
+-- but certain variations of US and Germany should not exist
+--
+-- Expectation: 0 rows returned
+SELECT DISTINCT cntry FROM silver.erp_loc_a101
+WHERE UPPER(cntry) IN ('UNITED STATES OF AMERICA', 'USA', 'US', 'DEUTSCHLAND', 'DE');

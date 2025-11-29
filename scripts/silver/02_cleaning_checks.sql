@@ -122,3 +122,18 @@ FROM bronze.erp_cust_az12
 WHERE CAST(regexp_replace(cid, '^(NAS)*AW0*', '') AS INT) NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
+
+-- #----------------------------------------------------------------------------
+-- #   bronze.erp_loc_a101
+-- #----------------------------------------------------------------------------
+
+-- Check how customer IDs like up with the main CRM customer table
+SELECT CAST(regexp_replace(cid, '^AW-0*', '') AS INT)
+FROM bronze.erp_loc_a101
+WHERE CAST(regexp_replace(cid, '^AW-0*', '') AS INT) NOT IN (
+    SELECT cst_id FROM silver.crm_cust_info
+);
+
+-- I see there are entries with just spaces as well as multiple names for
+-- United States and Germany
+SELECT DISTINCT cntry FROM bronze.erp_loc_a101;

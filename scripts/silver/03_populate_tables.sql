@@ -200,6 +200,29 @@ SELECT
         WHEN UPPER(TRIM(gen)) IN ('F', 'FEMALE') THEN 'Female'
         -- Nulls or spaces become nulls
         WHEN gen IS NULL OR TRIM(gen) = '' THEN NULL
-        ELSE gen
+        ELSE TRIM(gen)
     END AS gen
 FROM bronze.erp_cust_az12;
+
+-- #----------------------------------------------------------------------------
+-- #   silver.erp_loc_a101
+-- #----------------------------------------------------------------------------
+
+TRUNCATE TABLE silver.erp_loc_a101;
+INSERT INTO silver.erp_loc_a101 (
+    cid,
+    cntry
+)
+SELECT
+    -- To match other tables, we care only about the integer part of the
+    -- customer ID
+    CAST(regexp_replace(cid, '^AW-0*', '') AS INT) AS cid,
+    CASE
+        -- Clean up variations of country names
+        WHEN UPPER(TRIM(cntry)) IN ('USA', 'UNITED STATES', 'US') THEN 'United States'
+        WHEN UPPER(TRIM(cntry)) IN ('GERMANY', 'DE') THEN 'Germany'
+        -- Nulls or spaces become nulls
+        WHEN cntry IS NULL OR TRIM(cntry) = '' THEN NULL
+        ELSE TRIM(cntry)
+    END AS cntry
+FROM bronze.erp_loc_a101;
