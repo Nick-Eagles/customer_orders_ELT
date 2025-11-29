@@ -20,6 +20,11 @@ JOIN (
 ) AS dup
     ON t.cst_id = dup.cst_id;
 
+-- There are null primary keys, but in all cases there is no associated
+-- information; these rows can be safely dropped
+SELECT * FROM bronze.crm_cust_info
+WHERE cst_id IS NULL;
+
 -- To be extra cautious about invalid date entries, I just checked if non-null
 -- entries could be cast to dates; there were no such invalid entries.
 SELECT * FROM bronze.crm_cust_info

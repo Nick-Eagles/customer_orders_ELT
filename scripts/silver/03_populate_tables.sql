@@ -46,7 +46,7 @@ FROM (
         ) AS rn
     FROM bronze.crm_cust_info
 ) AS sub
-WHERE rn = 1;
+WHERE rn = 1 AND cst_id IS NOT NULL;
 
 -- #----------------------------------------------------------------------------
 -- #   silver.crm_prd_info
@@ -56,6 +56,7 @@ TRUNCATE TABLE silver.crm_prd_info;
 INSERT INTO silver.crm_prd_info (
     prd_id,
     prd_key,
+    prd_cat,
     prd_nm,
     prd_cost,
     prd_line,
@@ -65,6 +66,7 @@ INSERT INTO silver.crm_prd_info (
 SELECT
     sub.prd_id as prd_id,
     sub.prd_key as prd_key,
+    sub.prd_cat AS prd_cat,
     sub.prd_nm as prd_nm,
     sub.prd_cost as prd_cost,
     sub.prd_line as prd_line,
@@ -90,6 +92,7 @@ FROM (
         -- Generally cast and clean up columns
         CAST(prd_id AS INT) AS prd_id,
         SUBSTRING(TRIM(prd_key) FROM 7) AS prd_key,
+        regexp_replace(SUBSTRING(TRIM(prd_key), 1, 5), '-', '_') AS prd_cat,
         TRIM(prd_nm) AS prd_nm,
         CAST(prd_cost AS INT) AS prd_cost,
         -- Use full names instead of abbreviations but preseve null or unexpected

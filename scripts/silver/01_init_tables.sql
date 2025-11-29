@@ -11,29 +11,30 @@ Warning: this script will drop any existing silver tables!
 DROP TABLE IF EXISTS silver.crm_cust_info;
 CREATE TABLE silver.crm_cust_info (
     cst_id INT,
-    cst_key VARCHAR(50),
-    cst_firstname VARCHAR(50),
-    cst_lastname VARCHAR(50),
-    cst_marital_status VARCHAR(50),
-    cst_gndr VARCHAR(50),
+    cst_key TEXT,
+    cst_firstname TEXT,
+    cst_lastname TEXT,
+    cst_marital_status TEXT,
+    cst_gndr TEXT,
     cst_create_date DATE
 );
 
 DROP TABLE IF EXISTS silver.crm_prd_info;
 CREATE TABLE silver.crm_prd_info (
     prd_id INT,
-    prd_key VARCHAR(50),
-    prd_nm VARCHAR(50),
+    prd_key TEXT,
+    prd_cat CHAR(5),
+    prd_nm TEXT,
     prd_cost INT,
-    prd_line VARCHAR(50),
+    prd_line TEXT,
     prd_start_dt DATE,
     prd_end_dt DATE
 );
 
 DROP TABLE IF EXISTS silver.crm_sales_details;
 CREATE TABLE silver.crm_sales_details (
-    sls_ord_num VARCHAR(50),
-    sls_prd_key VARCHAR(50),
+    sls_ord_num TEXT,
+    sls_prd_key TEXT,
     sls_cust_id INT,
     sls_order_dt DATE,
     sls_ship_dt DATE,
@@ -51,19 +52,19 @@ DROP TABLE IF EXISTS silver.erp_cust_az12;
 CREATE TABLE silver.erp_cust_az12 (
     CID INT,
     BDATE DATE,
-    GEN VARCHAR(50)
+    GEN TEXT
 );
 
 DROP TABLE IF EXISTS silver.erp_loc_a101;
 CREATE TABLE silver.erp_loc_a101 (
     CID INT,
-    CNTRY VARCHAR(50)
+    CNTRY TEXT
 );
 
 DROP TABLE IF EXISTS silver.erp_px_cat_g1v2;
 CREATE TABLE silver.erp_px_cat_g1v2 (
     ID CHAR(5),
-    CAT VARCHAR(50),
-    SUBCAT VARCHAR(50),
-    MAINTENANCE VARCHAR(50)
+    CAT TEXT,
+    SUBCAT TEXT,
+    MAINTENANCE TEXT
 );
