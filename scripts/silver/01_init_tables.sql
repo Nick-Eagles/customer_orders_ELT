@@ -1,7 +1,8 @@
 /*
 Create silver-layer tables
 
-Warning: this script will drop any existing silver tables!
+Warning: this script will drop any existing silver tables! The tables are
+actually populated with rows in the 03_populate_tables.sql script
 */
 
 -- #############################################################################

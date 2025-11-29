@@ -1,3 +1,10 @@
+/*
+Quality checks to test the silver-layer tables
+
+The following queries include tests, generally expecting zero rows returned, to
+ensure I've properly cleaned up the bronze data to get to silver
+*/
+
 -- #############################################################################
 -- #   CRM tables
 -- #############################################################################

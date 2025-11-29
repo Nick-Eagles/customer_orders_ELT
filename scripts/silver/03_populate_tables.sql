@@ -1,3 +1,16 @@
+/*
+Truncate and populate silver tables
+
+Warning: running this script deletes all rows in any existing silver tables!
+Below are the queries I used to get from bronze to silver. For each bronze table
+there is a silver equivalent (in name), maintaining a one-to-one mapping.
+
+Due to the simplicity of the data sources, a single (sometimes slightly
+monolithic) query is used to get from bronze to silver for each table, though
+in a larger real-world project I would break up the logic into multiple silver
+steps for clarity and maintainability.
+*/
+
 -- #############################################################################
 -- #   CRM tables
 -- #############################################################################

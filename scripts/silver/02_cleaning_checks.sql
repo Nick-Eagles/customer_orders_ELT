@@ -1,3 +1,15 @@
+/*
+Explore Bronze tables to guide cleaning process
+
+This script contains queries I used to gain more information about quality
+issues in the Bronze-layer tables, to later inform the proper query logic
+in the 03_populate_tables.sql script that populates the Silver-layer tables.
+
+I also check how customers and products line up across the various data sources
+with the idea that after the silver layer, there will be clean joins to get to
+the gold layer.
+*/
+
 -- #############################################################################
 -- #   CRM tables
 -- #############################################################################
