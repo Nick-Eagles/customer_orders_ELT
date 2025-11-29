@@ -72,3 +72,26 @@ SELECT DISTINCT sls_cust_id FROM silver.crm_sales_details
 WHERE sls_cust_id NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
+
+-- #############################################################################
+-- #   ERP tables
+-- #############################################################################
+
+-- #----------------------------------------------------------------------------
+-- #   silver.erp_cust_az12
+-- #----------------------------------------------------------------------------
+
+-- All variations of male and female should be the following values. Also, while
+-- I allow for other gender values, I don't expect to see them in the data
+--
+-- Expectation: 0 rows returned
+SELECT DISTINCT GEN FROM silver.erp_cust_az12
+WHERE GEN NOT IN ('Male', 'Female');
+
+-- Expect all customer IDs to exist in the CRM customer info table
+--
+-- Expectation: 0 rows returned
+SELECT cid FROM silver.erp_cust_az12
+WHERE cid NOT IN (
+    SELECT cst_id FROM silver.crm_cust_info
+);

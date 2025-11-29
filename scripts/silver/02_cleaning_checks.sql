@@ -22,10 +22,8 @@ JOIN (
 
 -- To be extra cautious about invalid date entries, I just checked if non-null
 -- entries could be cast to dates; there were no such invalid entries.
-SELECT *
-FROM bronze.crm_cust_info
-WHERE cst_create_date IS NOT NULL
-    AND TO_DATE(cst_create_date, 'YYYY-MM-DD') IS NULL;
+SELECT * FROM bronze.crm_cust_info
+WHERE cst_create_date !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
 
 -- #----------------------------------------------------------------------------
 -- #   bronze.crm_prd_info
@@ -45,15 +43,9 @@ JOIN (
     ON t.prd_key = dup.prd_key;
 
 -- More sanity checks that non-NULL dates are properly formatted
-SELECT *
-FROM bronze.crm_prd_info
-WHERE (
-    prd_start_dt IS NOT NULL
-    AND TO_DATE(prd_start_dt, 'YYYY-MM-DD') IS NULL
-    ) OR (
-    prd_end_dt IS NOT NULL
-    AND TO_DATE(prd_end_dt, 'YYYY-MM-DD') IS NULL
-);
+SELECT * FROM bronze.crm_prd_info
+WHERE prd_start_dt !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+    OR prd_end_dt !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
 
 -- A huge fraction of rows have invalid end dates (earlier than start dates)
 SELECT
@@ -108,3 +100,25 @@ FROM (
 )
 WHERE TO_DATE(sls_order_dt, 'YYYYMMDD') > TO_DATE(sls_ship_dt, 'YYYYMMDD')
     OR TO_DATE(sls_ship_dt, 'YYYYMMDD') > TO_DATE(sls_due_dt, 'YYYYMMDD');
+
+-- #############################################################################
+-- #   ERP tables
+-- #############################################################################
+
+-- #----------------------------------------------------------------------------
+-- #   bronze.erp_cust_az12
+-- #----------------------------------------------------------------------------
+
+-- Check if dates are reasonably formatted
+SELECT bdate FROM bronze.erp_cust_az12 
+WHERE bdate !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+
+-- Check what genders are present
+SELECT DISTINCT gen FROM bronze.erp_cust_az12;
+
+-- Figure out how customer IDs in this table line up with those in CRM
+SELECT CAST(regexp_replace(cid, '^(NAS)*AW0*', '') AS INT)
+FROM bronze.erp_cust_az12
+WHERE CAST(regexp_replace(cid, '^(NAS)*AW0*', '') AS INT) NOT IN (
+    SELECT cst_id FROM silver.crm_cust_info
+);
