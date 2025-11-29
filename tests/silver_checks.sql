@@ -114,3 +114,19 @@ WHERE cid NOT IN (
 -- Expectation: 0 rows returned
 SELECT DISTINCT cntry FROM silver.erp_loc_a101
 WHERE UPPER(cntry) IN ('UNITED STATES OF AMERICA', 'USA', 'US', 'DEUTSCHLAND', 'DE');
+
+-- #----------------------------------------------------------------------------
+-- #   silver.erp_px_cat_g1v2
+-- #----------------------------------------------------------------------------
+
+-- Category IDs should obey the following regex
+-- 
+-- Expectation: 0 rows returned
+SELECT id FROM silver.erp_px_cat_g1v2
+WHERE id !~ '^[A-Z]{2}_[A-Z]{2}$';
+
+-- Maintenance should be either Yes or No
+--
+-- Expectation: 0 rows returned
+SELECT maintenance FROM silver.erp_px_cat_g1v2
+WHERE maintenance NOT IN ('Yes', 'No');

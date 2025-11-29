@@ -137,3 +137,19 @@ WHERE CAST(regexp_replace(cid, '^AW-0*', '') AS INT) NOT IN (
 -- I see there are entries with just spaces as well as multiple names for
 -- United States and Germany
 SELECT DISTINCT cntry FROM bronze.erp_loc_a101;
+
+-- #----------------------------------------------------------------------------
+-- #   bronze.erp_px_cat_g1v2
+-- #----------------------------------------------------------------------------
+
+-- Oops, I missed that the category ID was encoded in the CRM product key. Now
+-- that I know that, check if all categories here exist in the CRM product
+-- table. Well, one is missing, but there's no clear match in the other table
+SELECT id FROM bronze.erp_px_cat_g1v2
+WHERE id NOT IN (
+    SELECT regexp_replace(substring(prd_key, 1, 5), '-', '_') FROM bronze.crm_prd_info
+);
+
+-- The other columns with low cardinality look fine actually
+SELECT DISTINCT cat FROM bronze.erp_px_cat_g1v2;
+SELECT DISTINCT maintenance FROM bronze.erp_px_cat_g1v2;

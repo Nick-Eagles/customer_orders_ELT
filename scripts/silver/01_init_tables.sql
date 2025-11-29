@@ -49,20 +49,20 @@ CREATE TABLE silver.crm_sales_details (
 
 DROP TABLE IF EXISTS silver.erp_cust_az12;
 CREATE TABLE silver.erp_cust_az12 (
-    CID VARCHAR(50),
-    BDATE VARCHAR(50),
+    CID INT,
+    BDATE DATE,
     GEN VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS silver.erp_loc_a101;
 CREATE TABLE silver.erp_loc_a101 (
-    CID VARCHAR(50),
+    CID INT,
     CNTRY VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS silver.erp_px_cat_g1v2;
 CREATE TABLE silver.erp_px_cat_g1v2 (
-    ID VARCHAR(50),
+    ID CHAR(5),
     CAT VARCHAR(50),
     SUBCAT VARCHAR(50),
     MAINTENANCE VARCHAR(50)

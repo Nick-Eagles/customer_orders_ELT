@@ -226,3 +226,18 @@ SELECT
         ELSE TRIM(cntry)
     END AS cntry
 FROM bronze.erp_loc_a101;
+
+-- #----------------------------------------------------------------------------
+-- #   silver.erp_px_cat_g1v2
+-- #----------------------------------------------------------------------------
+
+-- This table is especially clean, and we can just use the bronze data. To keep
+-- things consistent and organized though, we still create the silver table
+TRUNCATE TABLE silver.erp_px_cat_g1v2;
+INSERT INTO silver.erp_px_cat_g1v2 (
+    id,
+    cat,
+    subcat,
+    maintenance
+)
+SELECT * FROM bronze.erp_px_cat_g1v2;
