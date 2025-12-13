@@ -1,53 +1,23 @@
-gold.dim_customer = silver.crm_cust_info |>
-    select(
-        cst_id,
-        cst_key,
-        cst_firstname,
-        cst_lastname,
-        cst_marital_status,
-        cst_gndr,
-        cst_create_date
-    ) |>
-    rename(
-        crm_key_1 = cst_id,
-        crm_key_2 = cst_key,
-        first_name = cst_firstname,
-        last_name = cst_lastname,
-        marital_status = cst_marital_status,
-        gender = cst_gndr,
-        create_date = cst_create_date
-    ) |>
-    left_join(
-        silver.erp_cust_az12 |>
-            select(cid, cid_clean, bdate, gen) |>
-            rename(erp_key_1 = cid, birth_date = bdate),
-        by = c("crm_key_1" = "cid_clean")
-    ) |>
-    mutate(
-        gender = case_when(
-            is.na(gender) ~ gen,
-            gender != gen ~ NA,
-            TRUE ~ gender
-        )
-    ) |>
-    left_join(
-        silver.erp_loc_a101 |>
-            select(cid, cid_clean, cntry) |>
-            rename(erp_key_2 = cid, country = cntry) |>
-        by = c("crm_key_1" = "cid_clean")
-    ) |>
-    mutate(surrogate_key = row_number()) |>
-    select(
-        surrogate_key,
-        crm_key_1,
-        crm_key_2,
-        erp_key_1,
-        erp_key_2,
-        first_name,
-        last_name,
-        marital_status,
-        gender,
-        create_date,
-        birth_date,
-        country
-    )
+CREATE OR REPLACE VIEW gold.dim_customer AS
+SELECT
+    ROW_NUMBER() OVER (ORDER BY crm.cst_id) AS surrogate_key,
+    crm.cst_id AS crm_key_1,
+    crm.cst_key AS crm_key_2,
+    erp_az.cid AS erp_key_1,
+    erp_loc.cid AS erp_key_2,
+    crm.cst_firstname AS first_name,
+    crm.cst_lastname AS last_name,
+    crm.cst_marital_status AS marital_status,
+    CASE
+        WHEN crm.cst_gndr IS NULL THEN erp_az.gen
+        WHEN crm.cst_gndr != erp_az.gen THEN NULL
+        ELSE crm.cst_gndr
+    END AS gender,
+    crm.cst_create_date AS create_date,
+    erp_az.bdate AS birth_date,
+    erp_loc.cntry AS country
+FROM silver.crm_cust_info AS crm
+LEFT JOIN silver.erp_cust_az12 AS erp_az
+    ON crm.cst_id = erp_az.cid_clean
+LEFT JOIN silver.erp_loc_a101 AS erp_loc
+    ON crm.cst_id = erp_loc.cid_clean;
