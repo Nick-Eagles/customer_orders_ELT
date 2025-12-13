@@ -1,6 +1,19 @@
+/*
+Create gold views, including dimension and fact tables
+
+Views are used to always have up-to-date data, and because performance is not
+a concern for the scale of this project.
+*/
+
+-- #############################################################################
+-- #  Dimension views
+-- #############################################################################
+
+-- All customer info joined together; one row per customer
 CREATE OR REPLACE VIEW gold.dim_customer AS
 SELECT
     ROW_NUMBER() OVER (ORDER BY crm.cst_id) AS surrogate_key,
+    -- Retain the 4 forms of customer keys seen in the raw data
     crm.cst_id AS crm_key_1,
     crm.cst_key AS crm_key_2,
     erp_az.cid AS erp_key_1,
@@ -8,6 +21,7 @@ SELECT
     crm.cst_firstname AS first_name,
     crm.cst_lastname AS last_name,
     crm.cst_marital_status AS marital_status,
+    -- Prefer gender value from CRM where possible
     CASE
         WHEN crm.cst_gndr IS NULL THEN erp_az.gen
         WHEN crm.cst_gndr != erp_az.gen THEN NULL
