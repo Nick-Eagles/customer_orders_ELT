@@ -54,6 +54,8 @@ WHERE prd_line NOT IN ('Mountain', 'Road', 'Other sales', 'Touring');
 SELECT * FROM silver.crm_prd_info
 WHERE prd_cost < 0;
 
+
+
 -- #----------------------------------------------------------------------------
 -- #   silver.crm_sales_details
 -- #----------------------------------------------------------------------------
@@ -137,3 +139,21 @@ WHERE id !~ '^[A-Z]{2}_[A-Z]{2}$';
 -- Expectation: 0 rows returned
 SELECT maintenance FROM silver.erp_px_cat_g1v2
 WHERE maintenance NOT IN ('Yes', 'No');
+
+-- How many products in the CRM product table don't have matching category info
+-- in the ERP table? Relevant because I'll do a left join in the gold layer
+--
+-- This is not a hard check, but ideally should return < 0.1 (10%)
+SELECT 
+    AVG(
+        CASE WHEN
+            erp.id IS NULL AND
+            erp.cat IS NULL AND
+            erp.subcat IS NULL AND
+            erp.maintenance IS NULL THEN 1
+        ELSE 0
+        END
+    ) AS null_proportion
+FROM silver.crm_prd_info AS crm
+LEFT JOIN silver.erp_px_cat_g1v2 AS erp
+    ON crm.prd_cat = erp.id;
