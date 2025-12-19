@@ -1,5 +1,5 @@
 /*
-Create gold views, including dimension and fact tables
+Create gold views, including dimension and fact views
 
 Views are used to always have up-to-date data, and because performance is not
 a concern for the scale of this project.
@@ -43,9 +43,9 @@ CREATE VIEW gold.dim_product AS
 SELECT
     ROW_NUMBER() OVER (ORDER BY crm.prd_key) AS surrogate_key,
     -- Product IDs/ keys come in 3 forms; retain all of them
-    crm.prd_id AS crm_key1,
-    crm.prd_key AS crm_key2,
-    crm.prd_clean_key AS crm_key3,
+    crm.prd_id AS crm_key_1,
+    crm.prd_key AS crm_key_2,
+    crm.prd_clean_key AS crm_key_3,
     -- Then put product info followed by category info
     crm.prd_nm AS name,
     crm.prd_cost AS cost,
@@ -58,5 +58,10 @@ SELECT
 FROM silver.crm_prd_info AS crm
 LEFT JOIN silver.erp_px_cat_g1v2 AS erp
     ON crm.prd_cat = erp.id
--- For gold, only include products that are still active
-WHERE crm.prd_end_dt IS NULL;
+-- This trick keeps the latest version of a product by prefering a NULL end
+-- date, or the latest end date if no NULL exists
+WHERE (crm.prd_key, COALESCE(crm.prd_end_dt, '9999-12-31')) IN (
+    SELECT prd_key, MAX(COALESCE(prd_end_dt, '9999-12-31'))
+    FROM silver.crm_prd_info
+    GROUP BY prd_key
+);
