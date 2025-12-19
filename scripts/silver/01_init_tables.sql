@@ -6,6 +6,15 @@ actually populated with rows in the 03_populate_tables.sql script
 */
 
 -- #############################################################################
+-- #  Drop the dependent gold views if they exist
+-- #############################################################################
+
+-- For idempotency, drop gold views since they depend on silver tables
+DROP VIEW IF EXISTS gold.fact_sales;
+DROP VIEW IF EXISTS gold.dim_customer;
+DROP VIEW IF EXISTS gold.dim_product;
+
+-- #############################################################################
 -- #  Create silver tables from CRM source
 -- #############################################################################
 
