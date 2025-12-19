@@ -54,7 +54,14 @@ WHERE prd_line NOT IN ('Mountain', 'Road', 'Other sales', 'Touring');
 SELECT * FROM silver.crm_prd_info
 WHERE prd_cost < 0;
 
-
+-- Each product should have at most one row with a NULL end date
+--
+-- Expectation: 0 rows returned
+SELECT prd_key, COUNT(*) AS null_end_date_count
+FROM silver.crm_prd_info
+WHERE prd_end_dt IS NULL
+GROUP BY prd_key
+HAVING COUNT(*) > 1;
 
 -- #----------------------------------------------------------------------------
 -- #   silver.crm_sales_details
@@ -71,7 +78,7 @@ WHERE sls_quantity < 0 OR sls_price < 0 OR sls_sales < 0;
 -- Expectation: 0 rows returned
 SELECT DISTINCT sls_prd_key FROM silver.crm_sales_details
 WHERE sls_prd_key NOT IN (
-    SELECT prd_key FROM silver.crm_prd_info
+    SELECT prd_clean_key FROM silver.crm_prd_info
 );
 
 -- All customers should exist in the customer info table
