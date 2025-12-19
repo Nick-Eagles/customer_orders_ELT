@@ -65,3 +65,26 @@ WHERE (crm.prd_key, COALESCE(crm.prd_end_dt, '9999-12-31')) IN (
     FROM silver.crm_prd_info
     GROUP BY prd_key
 );
+
+-- #############################################################################
+-- #  Fact views
+-- #############################################################################
+
+-- All sales; one row per sale
+DROP VIEW IF EXISTS gold.fact_sales;
+CREATE VIEW gold.fact_sales AS
+SELECT
+    sales.sls_ord_num AS order_number,
+    customer.surrogate_key AS customer_key,
+    product.surrogate_key AS product_key,
+    sales.sls_order_dt AS order_date,
+    sales.sls_ship_dt AS ship_date,
+    sales.sls_due_dt AS due_date,
+    sales.sls_sales AS revenue,
+    sales.sls_quantity AS quantity_sold,
+    sales.sls_price AS price
+FROM silver.crm_sales_details AS sales
+LEFT JOIN gold.dim_customer AS customer
+    ON sales.sls_cust_id = customer.crm_key_1
+LEFT JOIN gold.dim_product AS product
+    ON sales.sls_prd_key = product.crm_key_3;
