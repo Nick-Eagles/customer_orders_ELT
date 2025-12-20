@@ -89,6 +89,18 @@ WHERE sls_cust_id NOT IN (
     SELECT cst_id FROM silver.crm_cust_info
 );
 
+-- Within an order, a customer shouldn't order a product in more than one row;
+-- instead this would be reflected conceptually with sls_quantity > 1
+--
+-- Expectation: 0 rows returned
+SELECT * FROM silver.crm_sales_details
+WHERE sls_ord_num IN (
+    SELECT sls_ord_num
+    FROM silver.crm_sales_details
+    GROUP BY sls_ord_num, sls_cust_id, sls_prd_key
+    HAVING COUNT(*) > 1
+);
+
 -- #############################################################################
 -- #   ERP tables
 -- #############################################################################
