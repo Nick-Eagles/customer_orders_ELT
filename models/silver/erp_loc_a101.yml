@@ -1,0 +1,13 @@
+#   Generic tests for the silver ERP customer location table
+
+version: 2
+
+models:
+  - name: erp_loc_a101
+    description: "Table of customer locations"
+    columns:
+      - name: cid_clean
+        tests:
+          - relationships:
+              to: ref('crm_cust_info')
+              field: cst_id
