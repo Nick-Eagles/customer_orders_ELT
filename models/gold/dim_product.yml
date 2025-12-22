@@ -1,4 +1,6 @@
 #   Generic tests for the gold product dimension view
+#
+#   This one is simpler: the surrogate key should be unique and not null
 
 version: 2
 

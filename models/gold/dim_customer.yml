@@ -1,4 +1,7 @@
 #   Generic tests for the gold customer dimension view
+#
+#   I mostly just check uniqueness and not-null constraints, as appropriate, in
+#   the various key columns
 
 version: 2
 

@@ -1,4 +1,7 @@
 #   Generic tests for the gold fact sales view
+#
+#   Here I'm essentially just making sure customers and products described in
+#   sales always exist in the corresponding dimension views
 
 version: 2
 

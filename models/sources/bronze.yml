@@ -1,3 +1,6 @@
+#   Since dbt codes just the transformation steps, the bronze layer is assumed
+#   to exist already and each table is listed as a source
+
 version: 2
 
 sources:
