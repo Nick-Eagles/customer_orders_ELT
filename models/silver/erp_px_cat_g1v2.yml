@@ -1,0 +1,15 @@
+#   Generic tests for the silver ERP product category table
+
+version: 2
+
+models:
+  - name: erp_px_cat_g1v2
+    description: "Table of product category information"
+
+    columns:
+      - name: maintenance
+        description: "Maintenance status of the product category"
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+              quote: true
