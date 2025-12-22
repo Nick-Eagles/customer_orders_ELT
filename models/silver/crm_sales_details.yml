@@ -1,0 +1,18 @@
+#   Generic tests for the silver CRM sales details table
+
+version: 2
+
+models:
+  - name: crm_sales_details
+    description: "Table of sales details"
+    columns:
+      - name: sls_prd_key
+        tests:
+          - relationships:
+              to: ref('crm_prd_info')
+              field: prd_clean_key
+      - name: sls_cust_id
+        tests:
+          - relationships:
+              to: ref('crm_cust_info')
+              field: cst_id)
