@@ -1,0 +1,15 @@
+#   Generic tests for the silver CRM customer information table
+
+version: 2
+
+models:
+  - name: crm_prd_info
+    description: "Primary table of product information"
+
+    columns:
+      - name: prd_line
+        description: "Product line"
+        tests:
+          - accepted_values:
+              values: ['Mountain', 'Road', 'Other sales', 'Touring']
+              quote: true
