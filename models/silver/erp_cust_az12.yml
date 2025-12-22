@@ -1,0 +1,21 @@
+#   Generic tests for the silver ERP additional customer information table
+
+version: 2
+
+models:
+  - name: crm_cust_info
+    description: "Additional table of customer information"
+
+    columns:
+      - name: gen
+        description: "Customer gender"
+        tests:
+          - accepted_values:
+              values: ['Male', 'Female']
+              quote: true
+      - name: cid_clean
+        description: "Cleaned customer identifier"
+        tests:
+          - relationships:
+              to: ref('crm_cust_info')
+              field: cst_id
