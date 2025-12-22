@@ -1,0 +1,25 @@
+#   Generic tests for the silver CRM customer information table
+
+version: 2
+
+models:
+  - name: crm_cust_info
+    description: "Primary table of customer information"
+
+    columns:
+      - name: cst_id
+        description: "Customer identifier as an integer"
+        tests:
+          - not_null
+          - unique
+      - name: cst_marital_status
+        description: "Marital status of the customer"
+        tests:
+          - accepted_values:
+              values: ['Single', 'Married']
+              quote: true
+      - name: cst_gndr
+        tests:
+          - accepted_values:
+              values: ['Male', 'Female']
+              quote: true
