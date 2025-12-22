@@ -1,0 +1,14 @@
+#   Generic tests for the gold product dimension view
+
+version: 2
+
+models:
+  - name: dim_product
+    description: "Dimension view for products"
+
+    columns:
+      - name: surrogate_key
+        description: "Surrogate key for the product dimension"
+        tests:
+          - unique
+          - not_null

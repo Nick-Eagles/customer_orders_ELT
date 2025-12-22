@@ -1,0 +1,31 @@
+#   Generic tests for the gold customer dimension view
+
+version: 2
+
+models:
+  - name: dim_customer
+    description: "Dimension view for customers"
+
+    columns:
+      - name: surrogate_key
+        description: "Surrogate key for the customer dimension"
+        tests:
+          - unique
+          - not_null
+      - name: crm_key_1
+        description: "First form of customer key from CRM source"
+        tests:
+          - not_null
+      - name: crm_key_2
+        description: "Second form of customer key from CRM source"
+        tests:
+          - unique
+          - not_null
+      - name: erp_key_1
+        description: "First form of customer key from ERP source"
+        tests:
+          - not_null
+      - name: erp_key_2
+        description: "Second form of customer key from ERP source"
+        tests:
+          - not_null

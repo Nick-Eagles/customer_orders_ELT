@@ -1,0 +1,17 @@
+#   Generic tests for the gold fact sales view
+
+version: 2
+
+models:
+  - name: fact_sales
+    description: "Fact view for sales transactions"
+
+    columns:
+      - name: customer_key
+        description: "Surrogate key matching the customer dimension view"
+        tests:
+          - not_null
+      - name: product_key
+        description: "Surrogate key matching the product dimension view"
+        tests:
+          - not_null
