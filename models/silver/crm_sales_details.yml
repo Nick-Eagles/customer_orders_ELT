@@ -15,4 +15,4 @@ models:
         tests:
           - relationships:
               to: ref('crm_cust_info')
-              field: cst_id)
+              field: cst_id

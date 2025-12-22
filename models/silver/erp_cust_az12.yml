@@ -3,7 +3,7 @@
 version: 2
 
 models:
-  - name: crm_cust_info
+  - name: erp_cust_az12
     description: "Additional table of customer information"
 
     columns:

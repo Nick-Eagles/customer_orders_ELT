@@ -8,16 +8,21 @@
 
 {{ config(severity='warn') }}
 
-SELECT 
-    AVG(
-        CASE WHEN
-            erp.id IS NULL AND
-            erp.cat IS NULL AND
-            erp.subcat IS NULL AND
-            erp.maintenance IS NULL THEN 1
-        ELSE 0
-        END
-    ) AS null_proportion
-FROM {{ ref('crm_prd_info') }} AS crm
-LEFT JOIN {{ ref('erp_px_cat_g1v2') }} AS erp
-    ON crm.prd_cat = erp.id
+WITH stats AS (
+    SELECT 
+        AVG(
+            CASE
+                WHEN erp.id IS NULL
+                 AND erp.cat IS NULL
+                 AND erp.subcat IS NULL
+                 AND erp.maintenance IS NULL
+                THEN 1
+                ELSE 0
+            END
+        ) AS null_proportion
+    FROM {{ ref('crm_prd_info') }} AS crm
+    LEFT JOIN {{ ref('erp_px_cat_g1v2') }} AS erp
+        ON crm.prd_cat = erp.id
+)
+SELECT null_proportion FROM stats
+WHERE null_proportion > 0.10
