@@ -13,9 +13,9 @@ WITH stats AS (
         AVG(
             CASE
                 WHEN erp.id IS NULL
-                 AND erp.cat IS NULL
-                 AND erp.subcat IS NULL
-                 AND erp.maintenance IS NULL
+                    AND erp.cat IS NULL
+                    AND erp.subcat IS NULL
+                    AND erp.maintenance IS NULL
                 THEN 1
                 ELSE 0
             END
