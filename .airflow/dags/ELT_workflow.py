@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from pyhere import here
 
 default_args = {
     "owner": "Nick",
@@ -99,7 +101,7 @@ for table_name, csv_path in source_data_paths.items():
 
 with DAG(
     dag_id="elt_workflow",
-    start_date=datetime(2025, 12, 23, 0),
+    start_date=datetime(2025, 12, 23),
     schedule="@daily",
     description="The full ELT pipeline for this project",
     default_args=default_args
@@ -116,4 +118,10 @@ with DAG(
         sql=populate_str
     )
 
-    bronze_init_tables >> bronze_populate_tables
+    silver_dbt_run = BashOperator(
+        task_id="silver_dbt_run",
+        bash_command="source .venv/bin/activate; dbt run --select silver",
+        cwd=here()
+    )
+
+    bronze_init_tables >> bronze_populate_tables >> silver_dbt_run
