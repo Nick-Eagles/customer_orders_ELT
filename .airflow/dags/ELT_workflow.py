@@ -55,25 +55,47 @@ bronze_table_definitions = {
     }
 }
 
+source_data_paths = {
+    'bronze.crm_cust_info': '/var/lib/postgresql/imports/cust_info.csv',
+    'bronze.crm_prd_info': '/var/lib/postgresql/imports/prd_info.csv',
+    'bronze.crm_sales_details': '/var/lib/postgresql/imports/sales_details.csv',
+    'bronze.erp_cust_az12': '/var/lib/postgresql/imports/CUST_AZ12.csv',
+    'bronze.erp_loc_a101': '/var/lib/postgresql/imports/LOC_A101.csv',
+    'bronze.erp_px_cat_g1v2': '/var/lib/postgresql/imports/PX_CAT_G1V2.csv'
+}
+
 #   Given a table name and column specifications (column name + type), generate
 #   a string of SQL code to idempotently create the table
 def sql_for_creating_table(table_name: str, col_specs: dict) -> str:
     #   For idempotency, drop (if exists) then recreate the table
     sql_str = f'DROP TABLE IF EXISTS {table_name};\n'
     sql_str += f'CREATE TABLE {table_name} (\n'
-    #
+    
     #   Now add each column and type
     for col_name, col_type in list(col_specs.items())[:-1]:
         sql_str += f'    {col_name} {col_type},\n'
     col_name, col_type = list(col_specs.items())[-1]
     sql_str += f'    {col_name} {col_type}\n);\n'
-    #
+    
+    return sql_str
+
+#   Given a table name and path to a CSV file (accessible to the Postgres
+#   server), return SQL to bulk insert the CSV contents into the table.
+#   Assumes the table exists!
+def sql_for_bulk_insert(table_name: str, csv_path: str) -> str:
+    sql_str = f'TRUNCATE TABLE {table_name};\n'
+    sql_str += f"COPY {table_name} FROM '{csv_path}' WITH (FORMAT csv, HEADER true, DELIMITER ',');\n"
     return sql_str
 
 #   Generate lines of SQL code to generate all tables
-full_sql_str = ''
+creation_str = ''
 for table_name, col_specs in bronze_table_definitions.items():
-    full_sql_str += sql_for_creating_table(table_name, col_specs) + '\n'
+    creation_str += sql_for_creating_table(table_name, col_specs) + '\n'
+
+#   Generate lines of SQL code to bulk insert all source data
+populate_str = ''
+for table_name, csv_path in source_data_paths.items():
+    populate_str += sql_for_bulk_insert(table_name, csv_path) + '\n'
 
 with DAG(
     dag_id="elt_workflow",
@@ -85,5 +107,13 @@ with DAG(
     bronze_init_tables = SQLExecuteQueryOperator(
         task_id="bronze_init_tables",
         conn_id="postgres_localhost",
-        sql=full_sql_str
+        sql=creation_str
     )
+
+    bronze_populate_tables = SQLExecuteQueryOperator(
+        task_id="bronze_populate_tables",
+        conn_id="postgres_localhost",
+        sql=populate_str
+    )
+
+    bronze_init_tables >> bronze_populate_tables
