@@ -7,9 +7,13 @@ through `uv`. During development, I often used `DBeaver` to interact with my
 local Postgres database.
 
 ```
+#   Use uv to set up a virtual environment with dbt for Postgres and Airflow
 uv venv --python 3.10
 uv pip install dbt-core dbt-postgres
+uv pip install "apache-airflow[celery]==3.1.5" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.5/constraints-3.10.txt"
+
 source .venv/bin/activate
+export AIRFLOW_HOME=$(pwd)/.airflow
 
 #   Since the repo already exists, I do a workaround to get `dbt` files at the
 #   top level of the repo
