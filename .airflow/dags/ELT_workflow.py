@@ -2,7 +2,12 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.standard.operators.bash import BashOperator
+from airflow.sdk.bases.operator import chain
 from pyhere import here
+
+################################################################################
+#   Define parameters and raw data source details
+################################################################################
 
 default_args = {
     "owner": "Nick",
@@ -66,6 +71,10 @@ source_data_paths = {
     'bronze.erp_px_cat_g1v2': '/var/lib/postgresql/imports/PX_CAT_G1V2.csv'
 }
 
+################################################################################
+#   Define helper functions for generating SQL code
+################################################################################
+
 #   Given a table name and column specifications (column name + type), generate
 #   a string of SQL code to idempotently create the table
 def sql_for_creating_table(table_name: str, col_specs: dict) -> str:
@@ -89,6 +98,10 @@ def sql_for_bulk_insert(table_name: str, csv_path: str) -> str:
     sql_str += f"COPY {table_name} FROM '{csv_path}' WITH (FORMAT csv, HEADER true, DELIMITER ',');\n"
     return sql_str
 
+################################################################################
+#   Generate SQL code for the bronze layer
+################################################################################
+
 #   Generate lines of SQL code to generate all tables
 creation_str = ''
 for table_name, col_specs in bronze_table_definitions.items():
@@ -99,13 +112,21 @@ populate_str = ''
 for table_name, csv_path in source_data_paths.items():
     populate_str += sql_for_bulk_insert(table_name, csv_path) + '\n'
 
+################################################################################
+#   Define the DAG
+################################################################################
+
 with DAG(
-    dag_id="elt_workflow",
-    start_date=datetime(2025, 12, 23),
-    schedule="@daily",
-    description="The full ELT pipeline for this project",
-    default_args=default_args
-) as dag:
+        dag_id="elt_workflow",
+        start_date=datetime(2025, 12, 23),
+        schedule="@daily",
+        description="The full ELT pipeline for this project",
+        default_args=default_args
+    ) as dag:
+    #---------------------------------------------------------------------------
+    #   Bronze layer: ingest data from CSVs
+    #---------------------------------------------------------------------------
+
     bronze_init_tables = SQLExecuteQueryOperator(
         task_id="bronze_init_tables",
         conn_id="postgres_localhost",
@@ -118,10 +139,44 @@ with DAG(
         sql=populate_str
     )
 
+    #---------------------------------------------------------------------------
+    #   Silver layer: transform data using dbt
+    #---------------------------------------------------------------------------
+
     silver_dbt_run = BashOperator(
         task_id="silver_dbt_run",
         bash_command="source .venv/bin/activate; dbt run --select silver",
         cwd=here()
     )
 
-    bronze_init_tables >> bronze_populate_tables >> silver_dbt_run
+    silver_dbt_test = BashOperator(
+        task_id="silver_dbt_test",
+        bash_command="source .venv/bin/activate; dbt test --select silver",
+        cwd=here()
+    )
+
+    #---------------------------------------------------------------------------
+    #   Gold layer: use dbt to join into dimension and fact views
+    #---------------------------------------------------------------------------
+
+    gold_dbt_run = BashOperator(
+        task_id="gold_dbt_run",
+        bash_command="source .venv/bin/activate; dbt run --select gold",
+        cwd=here()
+    )
+
+    gold_dbt_test = BashOperator(
+        task_id="gold_dbt_test",
+        bash_command="source .venv/bin/activate; dbt test --select gold",
+        cwd=here()
+    )
+
+    #   Full ELT pipeline
+    chain(
+        bronze_init_tables,
+        bronze_populate_tables,
+        silver_dbt_run,
+        silver_dbt_test,
+        gold_dbt_run,
+        gold_dbt_test
+    )

@@ -10,9 +10,10 @@ local Postgres database.
 ```
 #   Use uv to set up a virtual environment with dbt for Postgres and Airflow
 uv venv --python 3.10
-uv pip install dbt-core dbt-postgres
+uv pip install dbt-core==1.11.2 dbt-postgres
 uv pip install "apache-airflow[celery]==3.1.5" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.5/constraints-3.10.txt"
 uv pip install apache-airflow-providers-postgres
+uv pip install pyhere
 
 #   Activate the venv and set an environment variable
 source .venv/bin/activate
