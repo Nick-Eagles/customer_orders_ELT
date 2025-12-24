@@ -15,6 +15,7 @@ default_args = {
     "retry_delay": timedelta(minutes=2)
 }
 
+#   I cautiously use TEXT here in many cases to preserve data as-is
 bronze_table_definitions = {
     'bronze.crm_cust_info': {
         'cst_id': 'TEXT',
