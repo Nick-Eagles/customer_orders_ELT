@@ -22,9 +22,32 @@ dropped for the purposes of this visualization:
 
 ![Identifiers throughout the data warehouse](img/schema_and_keys.png)
 
+## The ELT pipeline
+
+After extraction, data is transformed, joined, and aggregated in-warehouse to
+form the full ELT pipeline. The pipeline is orchestrated in `Airflow` as six
+tasks, with a DAG that looks like this:
+
+![Airflow DAG](img/airflow_dag.png)
+
+
 ## Repository structure
 
-TODO
+- [.airflow/dags/ELT_workflow.py](.airflow/dags/ELT_workflow.py): this Python
+script codes the full `Airflow` implementation of the ELT pipeline. Executing it
+in the Airflow web UI runs the entirety of extract, load, and transform steps
+for this project.
+- `data`: this directory contains the two raw data sources as six CSV files.
+- `img`: various PNG images used in this README
+- `misc_scripts`: SQL code run during development, to initialize the database
+and to query the bronze data to better understand how data integrates together
+across sources.
+- `models`: the `dbt` models and generic tests in `.sql` and `.yml` files
+respectively that code the transformation steps in the silver and gold layers.
+- `tests`: custom `dbt` tests written to ensure proper table content, especially
+at the silver layer, which involved some complex cleaning logic in some cases.
+- `dbt_project.yml`: `dbt` configuration, specifying things like silver being
+materialized as tables, while gold should be views.
 
 ## Software set-up
 
@@ -55,11 +78,22 @@ sudo cp data/source_CRM/* /var/lib/postgresql/imports/
 sudo cp data/source_ERP/* /var/lib/postgresql/imports/
 ```
 
-### Activating the environment
+### Running the pipeline
 
-The Python virtual environment contains the `Airflow` and `dbt` software
+The Python virtual environment contains the `Airflow` and `dbt` software. The
+full workflow can be run after activating the environment:
 ```
 #   Activate the venv and set an environment variable
 source .venv/bin/activate
 export AIRFLOW_HOME=$(pwd)/.airflow
+
+#   After some Airflow configuration to access the Postgres database,
+#   the DAG can be triggered in the Airflow web UI from localhost:
+airflow standalone
 ```
+
+### Acknowledgments
+
+A big thank you to DataWithBaraa, whose [base project](https://github.com/DataWithBaraa/sql-data-warehouse-project)
+helped provided the raw data and establish some high-level goals for this
+project.
