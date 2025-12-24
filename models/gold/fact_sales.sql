@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 SELECT
     sales.sls_ord_num AS order_number,
     customer.surrogate_key AS customer_key,

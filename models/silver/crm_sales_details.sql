@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 WITH cleaned AS (
     SELECT
         TRIM(sls_ord_num) AS sls_ord_num,

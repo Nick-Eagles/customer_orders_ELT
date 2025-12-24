@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 SELECT
     sub.prd_id as prd_id,
     sub.prd_key as prd_key,

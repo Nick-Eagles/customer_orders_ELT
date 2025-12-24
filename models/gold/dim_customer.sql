@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 SELECT
     ROW_NUMBER() OVER (ORDER BY crm.cst_id) AS surrogate_key,
     -- Retain the 4 forms of customer keys seen in the raw data

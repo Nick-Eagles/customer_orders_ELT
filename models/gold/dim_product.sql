@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 SELECT
     ROW_NUMBER() OVER (ORDER BY crm.prd_key) AS surrogate_key,
     -- Product IDs/ keys come in 3 forms; retain all of them

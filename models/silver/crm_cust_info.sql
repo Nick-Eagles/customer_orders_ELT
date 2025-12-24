@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 SELECT
     CAST(cst_id AS INT) AS cst_id,
     cst_key,

@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 SELECT
     cid,
     -- To match other tables, we care only about the integer part of the
